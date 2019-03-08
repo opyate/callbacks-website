@@ -1,10 +1,13 @@
 import logging
-
 import aiohttp
 import aiohttp_jinja2
 from aiohttp import web
 from faker import Faker
+from callbacksweb.db import insert, read_callbacks
+from callbacksweb.config import DevConfig
 
+
+config = DevConfig()
 log = logging.getLogger(__name__)
 
 
@@ -50,7 +53,17 @@ async def index(request):
 
 
 async def create_callback(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
-    return aiohttp_jinja2.render_template('create_callback.html', request, {'foo': text})
-    # return web.Response(text=text)
+
+    if request.method == 'POST':
+        data = await request.post()
+        url = data['url']
+        ts = data['ts']
+        print('submitted', url, ts)
+        # TODO real username here
+        insert(config, url, ts, 'demouser')
+
+    callbacks = read_callbacks(config, 'demouser')
+    print('found %i callbacks' % len(callbacks))
+    # [print(callback) for callback in callbacks]
+
+    return aiohttp_jinja2.render_template('create_callback.html', request, {'callbacks': callbacks})

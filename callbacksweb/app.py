@@ -24,6 +24,7 @@ async def init_app():
 
     app.router.add_get('/', index)
     app.router.add_get('/new', create_callback)
+    app.router.add_post('/new', create_callback)
 
     return app
 

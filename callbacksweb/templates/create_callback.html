@@ -6,7 +6,23 @@
     </script>
   </head>
   <body>
-    <h3>New!</h3>
-    <p>{{ foo }}</p>
+    <h3>Create a new callback</h3>
+    <form action="/new" method="post" accept-charset="utf-8"
+      enctype="application/x-www-form-urlencoded">
+
+        <label for="url">URL</label>
+        <input id="url" name="url" type="text" value="https://" autofocus/>
+
+        <label for="ts">When to get callback</label>
+        <input id="ts" name="ts" type="ts" value=""/>
+
+        <input type="submit" value="Create"/>
+    </form>
+
+    <ul>
+    {% for callback in callbacks %}
+        <li>{{ callback.url }}</li>
+    {% endfor %}
+    </ul>
   </body>
 </html>
