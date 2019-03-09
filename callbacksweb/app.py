@@ -1,7 +1,7 @@
 import logging
-
+import os
 import jinja2
-
+import ssl
 import aiohttp_jinja2
 from aiohttp import web
 from callbacksweb.views import index, create_callback, fake_endpoint
@@ -39,7 +39,15 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     app = init_app()
-    web.run_app(app)
+
+    if 'DO_PROD' in os.environ:
+        # prod
+        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ssl_context.load_cert_chain('/opt/cert/cert.pem', '/opt/cert/key.pem')
+        web.run_app(app, ssl_context=ssl_context, port=443)
+    else:
+        # dev
+        web.run_app(app=app, port=80)
 
 
 if __name__ == '__main__':

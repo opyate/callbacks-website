@@ -3,7 +3,6 @@ from callbacksweb.model.callback import Callback
 import psycopg2
 from psycopg2 import sql
 from typing import List
-import functools
 
 
 # insert into callbacks (url, ts, user_id) values ('http://example.org', 123, 'demouser')

@@ -4,11 +4,15 @@ import aiohttp_jinja2
 from aiohttp import web
 from faker import Faker
 from callbacksweb.db import insert, read_callbacks
-from callbacksweb.config import DevConfig
 import uuid
+from callbacksweb.config import DevConfig, ProdConfig
+import os
+config = DevConfig
+if 'DO_PROD' in os.environ:
+    config = ProdConfig
+print(config)
 
 
-config = DevConfig()
 log = logging.getLogger(__name__)
 
 

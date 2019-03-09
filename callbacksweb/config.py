@@ -19,7 +19,7 @@ class ProdConfig(Config):
     """Production configuration."""
     ENV = 'prod'
     DEBUG = False
-    DATABASE_URL = "dbname=pdfcrunch user={} password={} host={} port={}".format(os.environ.get('DB_USER'), os.environ.get('DB_PASSWORD'), os.environ.get('DB_HOST'), os.environ.get('DB_PORT'))
+    DATABASE_URL = "postgresql://doadmin:r9iusuq6n6b0ivzp@db-postgresql-lon1-80165-do-user-3001284-0.db.ondigitalocean.com:25060/callbacks?sslmode=require"
 
 
 class DevConfig(Config):
