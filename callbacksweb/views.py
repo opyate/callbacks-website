@@ -5,6 +5,7 @@ from aiohttp import web
 from faker import Faker
 from callbacksweb.db import insert, read_callbacks
 from callbacksweb.config import DevConfig
+import uuid
 
 
 config = DevConfig()
@@ -16,6 +17,28 @@ def get_random_name():
     return fake.name()
 
 
+async def fake_endpoint(request):
+    if request.method == 'POST':
+        data = await request.json()
+    elif request.method == 'GET':
+        data = request.query
+
+    host = request.headers['Host']
+    scheme = request.scheme
+    # set up websocket client
+    session = aiohttp.ClientSession()
+    ws = await session.ws_connect(
+        url='{}://{}'.format(scheme, host))
+
+    payload = 'no payload'
+    if 'payload' in data:
+        payload = data['payload']
+        # await ws.send_json({'action': 'sent', 'name': 'Joe', 'text': payload})
+        await ws.send_str(payload)
+        await ws.close()
+
+    return web.Response(text=payload)
+
 async def index(request):
     ws_current = web.WebSocketResponse()
     ws_ready = ws_current.can_prepare(request)
@@ -24,7 +47,8 @@ async def index(request):
 
     await ws_current.prepare(request)
 
-    name = get_random_name()
+    # name = get_random_name()
+    name = str(uuid.uuid4())
     log.info('%s joined.', name)
 
     await ws_current.send_json({'action': 'connect', 'name': name})

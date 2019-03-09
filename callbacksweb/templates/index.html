@@ -2,17 +2,48 @@
 <meta charset="utf-8" />
 <html>
   <head>
+      <style>
+          .message {
+
+          }
+          .name {
+              padding-right: 10px;
+              color: lightseagreen;
+          }
+          .date {
+              padding-right: 10px;
+              color: lightcoral;
+          }
+          .line {
+              padding: 3px;
+          }
+      </style>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
     </script>
     <script language="javascript" type="text/javascript">
      $(function() {
        var conn = null;
        var name = "UNKNOWN";
-       function log(msg) {
+       var logs = [];
+       var MAX = 10;
+       function log(msg, name) {
          var control = $('#log');
          var date = new Date();
-         var date_prompt = '(' + date.toISOString().split('T')[1].slice(0,8) + ') ';
-         control.html(control.html() + date_prompt + msg + '<br/>');
+         var date_prompt = date.toISOString().split('T')[1].slice(0,8);
+         if (typeof name === 'undefined') {
+             name = '';
+         }
+         name = '<span class="name">' + name + '</span>';
+         msg = '<span class="message">' + msg + '</span>';
+         date_prompt = '<span class="date">' + date_prompt + '</span>';
+
+         var allText = '<div class="line">' + date_prompt + name + msg + '</div>';
+         logs.unshift(allText);
+         if (logs.length > MAX) {
+             logs = logs.slice(0, MAX)
+         }
+
+         control.html(logs.join(''));
          control.scrollTop(control.scrollTop() + 1000);
        }
        function connect() {
@@ -25,28 +56,29 @@
            update_ui();
          };
          conn.onmessage = function(e) {
+             console.log(e)
            var data = JSON.parse(e.data);
            switch (data.action) {
              case  'connect':
                name = data.name;
-               log('Connected as ' + name);
+               {#log('Connected as ' + name);#}
                update_ui();
                break;
              case  'disconnect':
                name = data.name;
-               log('Disconnected ' + name);
+               {#log('Disconnected ' + name);#}
                update_ui();
                break;
              case 'join':
-               log('Joined ' + data.name);
+               {#log('Joined ' + data.name);#}
                break;
              case 'sent':
-               log(data.name + ': ' + data.text);
+               log(data.text, data.name);
                break;
            }
          };
          conn.onclose = function() {
-           log('Disconnected.');
+           log('>> Disconnected.');
            conn = null;
            update_ui();
          };
@@ -60,6 +92,9 @@
            update_ui();
          }
        }
+       window.addEventListener("beforeunload", function(event) {
+           disconnect();
+       });
        function update_ui() {
          if (conn == null) {
            $('#status').text('disconnected');
@@ -72,6 +107,7 @@
          }
          $('#name').text(name);
        }
+       /*
        $('#connect').on('click', function() {
          if (conn == null) {
            connect();
@@ -81,6 +117,8 @@
          update_ui();
          return false;
        });
+       */
+       /*
        $('#send').on('click', function() {
          var text = $('#text').val();
          // log('Sending: ' + text);
@@ -89,28 +127,30 @@
          $('#text').val('').focus();
          return false;
        });
+        */
        $('#text').on('keyup', function(e) {
          if (e.keyCode === 13) {
            $('#send').click();
            return false;
          }
        });
+       connect();
      });
     </script>
   </head>
   <body>
-    <h3>Chat!</h3>
-    <div>
-      <button id="connect">Connect</button>&nbsp;|&nbsp;Status:
-      <span id="name">UNKNOWN</span>
-      <span id="status">disconnected</span>
-    </div>
+    <h3>See live callbacks here</h3>
+{#    <div>#}
+{#      <button id="connect">Connect</button>&nbsp;|&nbsp;Status:#}
+{#      <span id="name">UNKNOWN</span>#}
+{#      <span id="status">disconnected</span>#}
+{#    </div>#}
     <div id="log"
-         style="width:20em;height:15em;overflow:auto;border:1px solid black">
+         style="width:80%;height:15em;overflow:auto;border:2px solid lightseagreen">
     </div>
-    <form id="chatform" onsubmit="return false;">
-      <input id="text" type="text" />
-      <input id="send" type="button" value="Send" disabled/>
-    </form>
+{#    <form id="chatform" onsubmit="return false;">#}
+{#      <input id="text" type="text" />#}
+{#      <input id="send" type="button" value="Send" disabled/>#}
+{#    </form>#}
   </body>
 </html>

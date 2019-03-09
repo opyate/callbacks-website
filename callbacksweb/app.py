@@ -4,11 +4,8 @@ import jinja2
 
 import aiohttp_jinja2
 from aiohttp import web
-from callbacksweb.views import index, create_callback
+from callbacksweb.views import index, create_callback, fake_endpoint
 
-import sys
-for key, val in sys.modules.items():
-    print(key, val)
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
 async def init_app():
@@ -25,6 +22,9 @@ async def init_app():
     app.router.add_get('/', index)
     app.router.add_get('/new', create_callback)
     app.router.add_post('/new', create_callback)
+    app.router.add_get('/api', fake_endpoint)
+    app.router.add_post('/api', fake_endpoint)
+
 
     return app
 
