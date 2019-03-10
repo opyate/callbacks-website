@@ -1,7 +1,5 @@
 import logging
-import os
 import jinja2
-import ssl
 import aiohttp_jinja2
 from aiohttp import web
 from callbacksweb.views import index, create_callback, fake_endpoint, show_config
@@ -25,7 +23,6 @@ async def init_app():
     app.router.add_get('/api', fake_endpoint)
     app.router.add_post('/api', fake_endpoint)
     app.router.add_get('/meta', show_config)
-
 
     return app
 

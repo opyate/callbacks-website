@@ -5,21 +5,24 @@ from aiohttp import web
 from faker import Faker
 from callbacksweb.db import insert, read_callbacks
 import uuid
+import random
 from callbacksweb.config import DevConfig, ProdConfig
 import os
+import datetime
+
 config = DevConfig
 if 'DO_PROD' in os.environ:
     config = ProdConfig
 
 
-
+fake = Faker()
 log = logging.getLogger(__name__)
 
 
-def get_random_name():
-    fake = Faker()
-    return fake.name()
-
+def getself(request):
+    host = request.host
+    scheme = request.scheme
+    return '{}://{}'.format(scheme, host)
 
 async def fake_endpoint(request):
     if request.method == 'POST':
@@ -27,12 +30,10 @@ async def fake_endpoint(request):
     elif request.method == 'GET':
         data = request.query
 
-    host = request.headers['Host']
-    scheme = request.scheme
     # set up websocket client
     session = aiohttp.ClientSession()
     ws = await session.ws_connect(
-        url='{}://{}'.format(scheme, host))
+        url=getself(request))
 
     payload = 'no payload'
     if 'payload' in data:
@@ -51,8 +52,9 @@ async def index(request):
 
     await ws_current.prepare(request)
 
-    # name = get_random_name()
-    name = str(uuid.uuid4())
+    # name = fake.name()
+    name = random.choice(emojis)
+    # name = str(uuid.uuid4())
     log.info('%s joined.', name)
 
     await ws_current.send_json({'action': 'connect', 'name': name})
@@ -65,10 +67,24 @@ async def index(request):
         msg = await ws_current.receive()
 
         if msg.type == aiohttp.WSMsgType.text:
-            for ws in request.app['websockets'].values():
+            open_sockets = request.app['websockets'].values()
+            for ws in open_sockets:
+                if ws is not ws_current or len(open_sockets) == 1:
+                    if msg.data == 'demo-ten' or msg.data == 'demo-thirty':
+                        n = 10
+                        if msg.data == 'demo-thirty':
+                            n = 30
+
+                        url = getself(request) + '/api?payload=' + name
+                        n_secs_from_now = datetime.datetime.now() + datetime.timedelta(seconds=n)
+                        # unix time in seconds
+                        ts = int(n_secs_from_now.strftime("%s"))
+                        print('inserting ' + url)
+                        insert(config, url, ts, 'demouser')
+
                 if ws is not ws_current:
                     await ws.send_json(
-                        {'action': 'sent', 'name': name, 'text': msg.data})
+                        {'action': 'sent', 'name': '', 'text': msg.data})
         else:
             break
 
@@ -101,3 +117,63 @@ async def show_config(request):
     msg = 'config is %s' % config
     print(msg)
     return web.Response(text=msg)
+
+
+emojis = [
+"🤩",
+"🤪",
+"🤭",
+"🤫",
+"🤨",
+"🤮",
+"🤯",
+"🧐",
+"🤬",
+"🧡",
+"🤟",
+"🤲",
+"🧠",
+"🧒",
+"🧑",
+"🧔",
+"🧓",
+"🧕",
+"🤱",
+"🧙",
+"🧚",
+"🧛",
+"🧜",
+"🧝",
+"🧞",
+"🧟",
+"🧖",
+"🧗",
+"🧘",
+"🦓",
+"🦒",
+"🦔",
+"🦕",
+"🦖",
+"🦗",
+"🥥",
+"🥦",
+"🥨",
+"🥩",
+"🥪",
+"🥣",
+"🥫",
+"🥟",
+"🥠",
+"🥡",
+"🥧",
+"🥤",
+"🥢",
+"🛸",
+"🛷",
+"🥌",
+"🧣",
+"🧤",
+"🧥",
+"🧦",
+"🧢",
+]

@@ -39,11 +39,11 @@
 
          var allText = '<div class="line">' + date_prompt + name + msg + '</div>';
          logs.unshift(allText);
-         if (logs.length > MAX) {
-             logs = logs.slice(0, MAX)
-         }
+         var logsToRender = logs.slice(0, MAX);
+         logs = logs.slice(0, MAX);
+         logsToRender.reverse();
 
-         control.html(logs.join(''));
+         control.html(logsToRender.join(''));
          control.scrollTop(control.scrollTop() + 1000);
        }
        function connect() {
@@ -65,8 +65,7 @@
                update_ui();
                break;
              case  'disconnect':
-               name = data.name;
-               {#log('Disconnected ' + name);#}
+               {#log('Disconnected ' + data.name);#}
                update_ui();
                break;
              case 'join':
@@ -99,11 +98,13 @@
          if (conn == null) {
            $('#status').text('disconnected');
            $('#connect').html('Connect');
-           $('#send').prop("disabled", true);
+           $('#demo-ten').prop("disabled", true);
+           $('#demo-thirty').prop("disabled", true);
          } else {
            $('#status').text('connected (' + conn.protocol + ')');
            $('#connect').html('Disconnect');
-           $('#send').prop("disabled", false);
+           $('#demo-ten').prop("disabled", false);
+           $('#demo-thirty').prop("disabled", false);
          }
          $('#name').text(name);
        }
@@ -118,22 +119,15 @@
          return false;
        });
        */
-       /*
-       $('#send').on('click', function() {
-         var text = $('#text').val();
-         // log('Sending: ' + text);
-         log(text);
-         conn.send(text);
-         $('#text').val('').focus();
+       $('#demo-ten').on('click', function() {
+         conn.send('demo-ten');
          return false;
        });
-        */
-       $('#text').on('keyup', function(e) {
-         if (e.keyCode === 13) {
-           $('#send').click();
-           return false;
-         }
+       $('#demo-thirty').on('click', function() {
+         conn.send('demo-thirty');
+         return false;
        });
+
        connect();
      });
     </script>
@@ -141,16 +135,16 @@
   <body>
     <h3>See live callbacks here</h3>
 {#    <div>#}
-{#      <button id="connect">Connect</button>&nbsp;|&nbsp;Status:#}
 {#      <span id="name">UNKNOWN</span>#}
 {#      <span id="status">disconnected</span>#}
 {#    </div>#}
     <div id="log"
          style="width:80%;height:15em;overflow:auto;border:2px solid lightseagreen">
     </div>
-{#    <form id="chatform" onsubmit="return false;">#}
-{#      <input id="text" type="text" />#}
-{#      <input id="send" type="button" value="Send" disabled/>#}
-{#    </form>#}
+    <form id="demoform" onsubmit="return false;">
+        Show a <span id="name">UNKNOWN</span>
+      <input id="demo-ten" type="button" value="10" disabled/> or
+      <input id="demo-thirty" type="button" value="30" disabled/> seconds from now
+    </form>
   </body>
 </html>
