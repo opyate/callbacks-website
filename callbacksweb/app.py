@@ -4,7 +4,7 @@ import jinja2
 import ssl
 import aiohttp_jinja2
 from aiohttp import web
-from callbacksweb.views import index, create_callback, fake_endpoint
+from callbacksweb.views import index, create_callback, fake_endpoint, show_config
 
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
@@ -24,6 +24,7 @@ async def init_app():
     app.router.add_post('/new', create_callback)
     app.router.add_get('/api', fake_endpoint)
     app.router.add_post('/api', fake_endpoint)
+    app.router.add_get('/meta', show_config)
 
 
     return app

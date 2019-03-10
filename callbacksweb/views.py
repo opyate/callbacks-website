@@ -10,7 +10,7 @@ import os
 config = DevConfig
 if 'DO_PROD' in os.environ:
     config = ProdConfig
-print(config)
+
 
 
 log = logging.getLogger(__name__)
@@ -95,3 +95,9 @@ async def create_callback(request):
     # [print(callback) for callback in callbacks]
 
     return aiohttp_jinja2.render_template('create_callback.html', request, {'callbacks': callbacks})
+
+
+async def show_config(request):
+    msg = 'config is %s' % config
+    print(msg)
+    return web.Response(text=msg)
