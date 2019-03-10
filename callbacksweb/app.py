@@ -40,14 +40,7 @@ def main():
 
     app = init_app()
 
-    if 'DO_PROD' in os.environ:
-        # prod
-        ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        ssl_context.load_cert_chain('/opt/cert/cert.pem', '/opt/cert/key.pem')
-        web.run_app(app, ssl_context=ssl_context, port=443)
-    else:
-        # dev
-        web.run_app(app=app, port=80)
+    web.run_app(app=app)
 
 
 if __name__ == '__main__':
