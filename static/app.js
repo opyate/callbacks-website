@@ -18,18 +18,11 @@ window.addEventListener('load', function() {
   });
 
   var loginStatus = document.querySelector('.container h4');
-  var loginView = document.getElementById('login-view');
-  var homeView = document.getElementById('home-view');
 
   // buttons and event listeners
-  var homeViewBtn = document.getElementById('btn-home-view');
   var loginBtn = document.getElementById('qsLoginBtn');
   var logoutBtn = document.getElementById('qsLogoutBtn');
-
-  homeViewBtn.addEventListener('click', function() {
-    homeView.style.display = 'inline-block';
-    loginView.style.display = 'none';
-  });
+  var accountLink = document.getElementById('account');
 
   loginBtn.addEventListener('click', function(e) {
     e.preventDefault();
@@ -47,6 +40,8 @@ window.addEventListener('load', function() {
     );
     accessToken = authResult.accessToken;
     idToken = authResult.idToken;
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('id_token', idToken);
   }
 
   function renewTokens() {
@@ -66,6 +61,8 @@ window.addEventListener('load', function() {
   function logout() {
     // Remove isLoggedIn flag from localStorage
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('id_token');
     // Remove tokens and expiry time
     accessToken = '';
     idToken = '';
@@ -85,10 +82,7 @@ window.addEventListener('load', function() {
       if (authResult && authResult.accessToken && authResult.idToken) {
         window.location.hash = '';
         localLogin(authResult);
-        loginBtn.style.display = 'none';
-        homeView.style.display = 'inline-block';
       } else if (err) {
-        homeView.style.display = 'inline-block';
         console.log(err);
         alert(
           'Error: ' + err.error + '. Check the console for further details.'
@@ -101,10 +95,12 @@ window.addEventListener('load', function() {
   function displayButtons() {
     if (isAuthenticated()) {
       loginBtn.style.display = 'none';
+      accountLink.style.display = 'inline-block';
       logoutBtn.style.display = 'inline-block';
       loginStatus.innerHTML = 'You are logged in!';
     } else {
       loginBtn.style.display = 'inline-block';
+      accountLink.style.display = 'none';
       logoutBtn.style.display = 'none';
       loginStatus.innerHTML =
         'You are not logged in! Please log in to continue.';

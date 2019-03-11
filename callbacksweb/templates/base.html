@@ -11,31 +11,37 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-<h1>Unleash Your Server</h1>
 
- <div id="loading">
+<div id="loading">
     <img src="/static/loading.svg" alt="Loading spinner">
 </div>
 
 <div id="content" class="content">
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Callbacks</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
 
-                <button id="btn-home-view" class="btn btn-primary btn-margin">
-                    Home
-                </button>
+        <a class="navbar-brand" href="/">Callbacks</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <button id="qsLoginBtn" class="btn btn-primary btn-margin">
-                    Log In
-                </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="qsLoginBtn" href="#">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="qsLogoutBtn" href="#">Logout</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="account" href="/account">Account</a>
+                </li>
 
-                <button id="qsLogoutBtn" class="btn btn-primary btn-margin">
-                    Log Out
-                </button>
+            </ul>
 
-            </div>
         </div>
     </nav>
 
