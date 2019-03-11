@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<meta charset="utf-8" />
-<html>
-  <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
-    </script>
-  </head>
-  <body>
-    <h3>Create a new callback</h3>
+{% extends "base.html" %}
+
+{% block title %}- Create callback{% endblock %}
+
+{% block content %}
+
+    <h1>Create a new callback</h1>
+
     <form action="/new" method="post" accept-charset="utf-8"
       enctype="application/x-www-form-urlencoded">
 
@@ -24,5 +23,4 @@
         <li>{{ callback.url }}</li>
     {% endfor %}
     </ul>
-  </body>
-</html>
+{% endblock %}

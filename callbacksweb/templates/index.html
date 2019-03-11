@@ -1,8 +1,10 @@
-<!DOCTYPE html>
-<meta charset="utf-8" />
-<html>
-  <head>
-      <style>
+{% extends "base.html" %}
+
+{% block title %}- Callbacks{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style>
           .message {
 
           }
@@ -18,155 +20,10 @@
               padding: 3px;
           }
       </style>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js">
-    </script>
-    <script language="javascript" type="text/javascript">
-     $(function() {
-       var conn = null;
-       var name = "UNKNOWN";
-       var logs = [];
-       var MAX = 10;
-       function log(msg, name) {
-         var control = $('#log');
-         var date = new Date();
-         var date_prompt = date.toISOString().split('T')[1].slice(0,8);
-         if (typeof name === 'undefined') {
-             name = '';
-         }
-         name = '<span class="name">' + name + '</span>';
-         msg = '<span class="message">' + msg + '</span>';
-         date_prompt = '<span class="date">' + date_prompt + '</span>';
+{% endblock %}
 
-         var allText = '<div class="line">' + date_prompt + name + msg + '</div>';
-         logs.unshift(allText);
-         var logsToRender = logs.slice(0, MAX);
-         logs = logs.slice(0, MAX);
-         logsToRender.reverse();
+{% block content %}
 
-         control.html(logsToRender.join(''));
-         control.scrollTop(control.scrollTop() + 1000);
-       }
-       function connect() {
-         disconnect();
-         var wsUri = (window.location.protocol=='https:'&&'wss://'||'ws://')+window.location.host;
-         conn = new WebSocket(wsUri);
-         //log('Connecting...');
-         conn.onopen = function() {
-           //log('Connected.');
-           update_ui();
-         };
-         conn.onmessage = function(e) {
-             {#console.log(e)#}
-           var data = JSON.parse(e.data);
-           switch (data.action) {
-             case  'connect':
-               name = data.name;
-               {#log('Connected as ' + name);#}
-               {#update_ui();#}
-               break;
-             case  'disconnect':
-               {#log('Disconnected ' + data.name);#}
-               {#update_ui();#}
-               break;
-             case 'join':
-               {#log('Joined ' + data.name);#}
-               break;
-             case 'sent':
-               log(data.text, data.name);
-               break;
-           }
-         };
-         conn.onclose = function() {
-           log('>> Disconnected.');
-           conn = null;
-           update_ui();
-         };
-       }
-       function disconnect() {
-         if (conn != null) {
-           //log('Disconnecting...');
-           conn.close();
-           conn = null;
-           name = 'UNKNOWN';
-           update_ui();
-         }
-       }
-
-       var timestampInterval = setInterval(function () {
-           var now = + new Date();
-           now = Math.floor(now / 1000);
-           now = now + 60;
-
-           $('.ts').text(now);
-       }, 1000)
-
-
-       window.addEventListener("beforeunload", function(event) {
-           disconnect();
-           clearInterval(timestampInterval);
-       });
-       var emojis = ["🤩", "🤪", "🤭", "🤫", "🤨", "🤮", "🤯", "🧐", "🤬", "🧡", "🤟", "🤲", "🧠", "🧒", "🧑", "🧔", "🧓", "🧕", "🤱", "🧙", "🧚", "🧛", "🧜", "🧝", "🧞", "🧟", "🧖", "🧗", "🧘", "🦓", "🦒", "🦔", "🦕", "🦖", "🦗", "🥥", "🥦", "🥨", "🥩", "🥪", "🥣", "🥫", "🥟", "🥠", "🥡", "🥧", "🥤", "🥢", "🛸", "🛷", "🥌", "🧣", "🧤", "🧥", "🧦", "🧢", ];
-       function update_ui() {
-         if (conn == null) {
-           $('#status').text('disconnected');
-           $('#connect').html('Connect');
-           $('#demo-ten').prop("disabled", true);
-           $('#demo-thirty').prop("disabled", true);
-         } else {
-           $('#status').text('connected (' + conn.protocol + ')');
-           $('#connect').html('Disconnect');
-           $('#demo-ten').prop("disabled", false);
-           $('#demo-thirty').prop("disabled", false);
-         }
-         $('#name').text(name);
-
-         $('.proto').text(window.location.protocol);
-         $('.host').text(window.location.host);
-         var randomPayload = emojis[Math.floor(Math.random() * emojis.length)];
-         $('.payload').text(randomPayload);
-
-         $('#copycurl').prop("disabled", false);
-
-       }
-       /*
-       $('#connect').on('click', function() {
-         if (conn == null) {
-           connect();
-         } else {
-           disconnect();
-         }
-         update_ui();
-         return false;
-       });
-       */
-       $('#demo-ten').on('click', function() {
-         conn.send('demo-ten');
-         return false;
-       });
-       $('#demo-thirty').on('click', function() {
-         conn.send('demo-thirty');
-         return false;
-       });
-       $('#copycurl').on('click', function() {
-         var cmd = $('#curlcommand')[0].innerText;
-         copyToClipboard(cmd);
-         return false;
-       });
-
-       function copyToClipboard (str) {
-          const el = document.createElement('textarea');
-          el.value = str;
-          document.body.appendChild(el);
-          el.select();
-          document.execCommand('copy');
-          document.body.removeChild(el);
-        };
-
-       connect();
-     });
-    </script>
-  </head>
-  <body>
     <h1>Callbacks</h1>
     <h2>Run the following in your terminal</h2>
     <div>
@@ -189,18 +46,16 @@ EOF
         </p>
 
     </div>
+
     <h2>See the callback here</h2>
-{#    <div>#}
-{#      <span id="name">UNKNOWN</span>#}
-{#      <span id="status">disconnected</span>#}
-{#    </div>#}
+
     <div id="log"
          style="width:20em;height:15em;overflow:auto;border:2px solid lightseagreen">
     </div>
-{#    <form id="demoform" onsubmit="return false;">#}
-{#        Show a <span id="name">UNKNOWN</span>#}
-{#      <input id="demo-ten" type="button" value="10" disabled/> or#}
-{#      <input id="demo-thirty" type="button" value="30" disabled/> seconds from now#}
-{#    </form>#}
-  </body>
-</html>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="/static/ws.js"></script>
+{% endblock %}

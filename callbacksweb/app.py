@@ -2,7 +2,7 @@ import logging
 import jinja2
 import aiohttp_jinja2
 from aiohttp import web
-from callbacksweb.views import index, create_callback, fake_endpoint, show_config
+from callbacksweb.views import index, create_callback, fake_endpoint, show_config, auth_callback
 
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
@@ -23,6 +23,8 @@ async def init_app():
     app.router.add_get('/test', fake_endpoint)
     app.router.add_post('/test', fake_endpoint)
     # app.router.add_get('/meta', show_config)
+
+    app.router.add_static('/static/', path=str('../static/'))
 
     return app
 

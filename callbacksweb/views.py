@@ -102,9 +102,11 @@ async def create_callback(request):
     # anyone else can use anything else
 
     try:
-        auth_header = request.headers['Authorization']
-        auth_header = auth_header.replace('Basic ', '')
-        apikey = base64.b64decode(auth_header).decode('utf-8').split(':')[0]
+        apikey = None
+        if 'Authorization' in request.headers:
+            auth_header = request.headers['Authorization']
+            auth_header = auth_header.replace('Basic ', '')
+            apikey = base64.b64decode(auth_header).decode('utf-8').split(':')[0]
 
         if request.method == 'POST':
             if request.content_type == 'application/json':
@@ -134,7 +136,7 @@ async def create_callback(request):
         if request.content_type == 'application/json':
             return web.Response(text='Great, now back to the site and wait for the result!')
         else:
-            return aiohttp_jinja2.render_template('create_callback.html', request, {'callbacks': callbacks})
+            return aiohttp_jinja2.render_template('callbacks.html', request, {'callbacks': callbacks})
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)
