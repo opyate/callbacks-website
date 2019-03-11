@@ -24,7 +24,7 @@ async def init_app():
     app.router.add_post('/test', fake_endpoint)
     # app.router.add_get('/meta', show_config)
 
-    app.router.add_static('/static/', path=str('../static/'))
+    app.router.add_static('/static/', path=str('static'))
 
     return app
 
