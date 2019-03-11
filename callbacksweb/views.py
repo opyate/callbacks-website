@@ -98,82 +98,35 @@ async def index(request):
 
 async def create_callback(request):
 
-    if request.method == 'POST':
-        data = await request.post()
-        url = data['url']
-        ts = data['ts']
-        print('submitted', url, ts)
-        # TODO real username here
-        insert(config, url, ts, 'demouser')
+    try:
+        if request.method == 'POST':
+            if request.content_type == 'application/json':
+                data = await request.json()
+            else:
+                data = await request.post()
+            url = data['url']
+            ts = int(data['ts'])
 
-    callbacks = read_callbacks(config, 'demouser')
-    print('found %i callbacks' % len(callbacks))
-    # [print(callback) for callback in callbacks]
+            # convert to seconds
+            if ts > 9999999999:
+                ts = ts // 1000
+            print('submitted', url, ts)
+            # TODO real username here
+            insert(config, url, ts, 'demouser')
 
-    return aiohttp_jinja2.render_template('create_callback.html', request, {'callbacks': callbacks})
+        callbacks = read_callbacks(config, 'demouser')
+        print('found %i callbacks' % len(callbacks))
+        # [print(callback) for callback in callbacks]
+
+        if request.content_type == 'application/json':
+            return web.Response(text='Great, now back to the site and wait for the result!')
+        else:
+            return aiohttp_jinja2.render_template('create_callback.html', request, {'callbacks': callbacks})
+    except Exception as e:
+        return web.Response(text='Something went wrong :(', status=500)
 
 
 async def show_config(request):
     msg = 'config is %s' % config
     print(msg)
     return web.Response(text=msg)
-
-
-emojis = [
-"🤩",
-"🤪",
-"🤭",
-"🤫",
-"🤨",
-"🤮",
-"🤯",
-"🧐",
-"🤬",
-"🧡",
-"🤟",
-"🤲",
-"🧠",
-"🧒",
-"🧑",
-"🧔",
-"🧓",
-"🧕",
-"🤱",
-"🧙",
-"🧚",
-"🧛",
-"🧜",
-"🧝",
-"🧞",
-"🧟",
-"🧖",
-"🧗",
-"🧘",
-"🦓",
-"🦒",
-"🦔",
-"🦕",
-"🦖",
-"🦗",
-"🥥",
-"🥦",
-"🥨",
-"🥩",
-"🥪",
-"🥣",
-"🥫",
-"🥟",
-"🥠",
-"🥡",
-"🥧",
-"🥤",
-"🥢",
-"🛸",
-"🛷",
-"🥌",
-"🧣",
-"🧤",
-"🧥",
-"🧦",
-"🧢",
-]

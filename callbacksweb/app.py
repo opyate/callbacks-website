@@ -18,10 +18,10 @@ async def init_app():
         app, loader=jinja2.PackageLoader('callbacksweb', 'templates'))
 
     app.router.add_get('/', index)
-    app.router.add_get('/new', create_callback)
-    app.router.add_post('/new', create_callback)
-    app.router.add_get('/api', fake_endpoint)
-    app.router.add_post('/api', fake_endpoint)
+    app.router.add_get('/callbacks', create_callback)
+    app.router.add_post('/callbacks', create_callback)
+    app.router.add_get('/test', fake_endpoint)
+    app.router.add_post('/test', fake_endpoint)
     app.router.add_get('/meta', show_config)
 
     return app
