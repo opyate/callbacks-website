@@ -2,7 +2,7 @@ import logging
 import jinja2
 import aiohttp_jinja2
 from aiohttp import web
-from callbacksweb.views import index, create_callback, fake_endpoint, show_config, auth_callback
+from callbacksweb.views import index, create_callback, fake_endpoint, show_config
 
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
