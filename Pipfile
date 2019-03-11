@@ -11,6 +11,7 @@ aiohttp = "*"
 aiohttp-jinja2 = "*"
 faker = "*"
 psycopg2-binary = "*"
+aiohttp-security = "*"
 
 [requires]
 python_version = "3.7"
