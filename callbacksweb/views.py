@@ -2,7 +2,6 @@ import logging
 import aiohttp
 import aiohttp_jinja2
 from aiohttp import web
-from faker import Faker
 from callbacksweb.db import insert, read_callbacks
 import uuid
 import random
@@ -15,7 +14,6 @@ if 'DO_PROD' in os.environ:
     config = ProdConfig
 
 
-fake = Faker()
 log = logging.getLogger(__name__)
 
 
@@ -37,8 +35,9 @@ async def fake_endpoint(request):
 
     payload = 'no payload'
     if 'payload' in data:
-        payload = data['payload']
-        # await ws.send_json({'action': 'sent', 'name': 'Joe', 'text': payload})
+        payload: str = data['payload']
+        if len(payload) > 30:
+            payload = payload[:30] + '..'
         await ws.send_str(payload)
         await ws.close()
 
@@ -52,9 +51,7 @@ async def index(request):
 
     await ws_current.prepare(request)
 
-    # name = fake.name()
-    name = random.choice(emojis)
-    # name = str(uuid.uuid4())
+    name = str(uuid.uuid4())
     log.info('%s joined.', name)
 
     await ws_current.send_json({'action': 'connect', 'name': name})

@@ -22,7 +22,7 @@ async def init_app():
     app.router.add_post('/callbacks', create_callback)
     app.router.add_get('/test', fake_endpoint)
     app.router.add_post('/test', fake_endpoint)
-    app.router.add_get('/meta', show_config)
+    # app.router.add_get('/meta', show_config)
 
     return app
 
