@@ -5,6 +5,8 @@ from callbacksweb.config import DevConfig, ProdConfig
 import os
 import base64
 import sys, traceback
+import jsonpickle
+import json
 
 
 config = DevConfig
@@ -46,17 +48,23 @@ async def handle(request):
             print('submitted', url, ts)
             # TODO real username here
             # TODO apikey should now be in users table (do that on signup)
-            insert(config, url, ts, 'demouser')
+            new_row = insert(config, url, ts, 'demouser')
 
-        callbacks = read_callbacks(config, 'demouser')
-        print('found %i callbacks' % len(callbacks))
-        # [print(callback) for callback in callbacks]
-
-        return web.json_response({
-            'message': 'callback created',
-            'data': {}
-        })
+            data = json.loads(jsonpickle.encode(new_row))
+            data.pop('py/object')
+            return web.json_response({
+                'data': data
+            })
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)
 
+
+async def list(request):
+    # TODO real user from auth
+    callbacks = read_callbacks(config, 'demouser')
+    print('found %i callbacks' % len(callbacks))
+    # [print(callback) for callback in callbacks]
+    return web.json_response({
+        'data': callbacks
+    })

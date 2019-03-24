@@ -16,6 +16,3 @@ class Callback(object):
 
     def __repr__(self) -> str:
         return "%s(%r)" % (self.__class__, self.__dict__)
-
-
-

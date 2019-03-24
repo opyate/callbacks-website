@@ -12,9 +12,10 @@ def insert(config, callback_url, ts, user_id = 'demouser'):
         cnn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         with cnn.cursor() as cur:
             cur.execute(
-                sql.SQL("insert into callbacks (url, ts, user_id) values (%s, %s::integer, %s)").format(),
+                sql.SQL("insert into callbacks (url, ts, user_id) values (%s, %s::integer, %s) RETURNING *").format(),
                 [callback_url, ts, user_id]
             )
+            return Callback(cur.fetchone())
 
 
 def read_callbacks(config, user_id) -> List[Callback]:
