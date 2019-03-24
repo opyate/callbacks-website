@@ -52,7 +52,7 @@ async def handle(request):
         print('found %i callbacks' % len(callbacks))
         # [print(callback) for callback in callbacks]
 
-        return web.Response(text='Great, now back to the site and wait for the result!')
+        return web.Response(text='Callback created')
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)
