@@ -2,60 +2,14 @@
 
 {% block title %}- Callbacks{% endblock %}
 
-{% block head %}
-    {{ super() }}
-    <style>
-          .message {
-
-          }
-          .name {
-              padding-right: 10px;
-              color: lightseagreen;
-          }
-          .date {
-              padding-right: 10px;
-              color: lightcoral;
-          }
-          .line {
-              padding: 3px;
-          }
-      </style>
-{% endblock %}
-
 {% block content %}
 
-    <h1>Callbacks</h1>
-    <h2>Run the following in your terminal</h2>
-    <div>
-        <pre id="curlcommand">
-curl -X POST <span class="proto">https:</span>//<span class="host">cbapi.uys.io</span>/callbacks \
-    -u demo: \
-    -H 'content-type: application/json'\
-    -d @- << EOF
-      {
-        "url": "<span class="proto">https:</span>//<span class="host">cbapi.uys.io</span>/test?payload=<span class="payload">uys.io+makes+useful+web+tools</span>",
-        "ts": "<span class="ts">0</span>"
-      }
-EOF
-        </pre>
-
-        <input id="copycurl" type="button" value="Copy to clipboard" disabled/>
-
-        <p>
-        <i>The timestamp ts=<span class="ts">0</span> is a minute from now</i>
-        </p>
-
+    <div class="row">
+        <div class="col">
+            <h1>Callbacks</h1>
+            <p>Welcome to Callbacks! Please see the <a href="">OpenAPI documentation</a>.</p>
+        </div>
     </div>
 
-    <h2>See the callback here</h2>
 
-    <div id="log"
-         style="width:20em;height:15em;overflow:auto;border:2px solid lightseagreen">
-    </div>
-
-{% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <script src="/static/ws.js"></script>
 {% endblock %}

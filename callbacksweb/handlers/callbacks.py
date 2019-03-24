@@ -53,10 +53,7 @@ async def handle(request):
         print('found %i callbacks' % len(callbacks))
         # [print(callback) for callback in callbacks]
 
-        if request.content_type == 'application/json':
-            return web.Response(text='Great, now back to the site and wait for the result!')
-        else:
-            return aiohttp_jinja2.render_template('callbacks.html', request, {'callbacks': callbacks})
+        return web.Response(text='Great, now back to the site and wait for the result!')
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)

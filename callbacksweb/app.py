@@ -2,7 +2,7 @@ import logging
 import jinja2
 import aiohttp_jinja2
 from aiohttp import web
-from callbacksweb.handlers import callbacks, fake_endpoint, home, auth_callback, account
+from callbacksweb.handlers import callbacks, home
 
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
@@ -20,14 +20,9 @@ async def init_app():
     app.router.add_get('/', home.handle)
     app.router.add_get('/callbacks', callbacks.handle)
     app.router.add_post('/callbacks', callbacks.handle)
-    app.router.add_get('/test', fake_endpoint.handle)
-    app.router.add_post('/test', fake_endpoint.handle)
     # app.router.add_get('/meta', show_config)
-    app.router.add_get('/account', account.handle)
-    app.router.add_get('/callback', auth_callback.handle)
 
-
-    app.router.add_static('/static/', path=str('static'))
+    # app.router.add_static('/static/', path=str('static'))
 
     return app
 
