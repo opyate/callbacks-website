@@ -16,6 +16,7 @@ def insert(config, callback_url, ts, user_id = 'demouser'):
                 [callback_url, ts, user_id]
             )
 
+
 def read_callbacks(config, user_id) -> List[Callback]:
     callbacks = []
     url = config.DATABASE_URL

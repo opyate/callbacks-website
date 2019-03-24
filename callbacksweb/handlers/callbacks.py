@@ -1,5 +1,4 @@
 import logging
-import aiohttp_jinja2
 from aiohttp import web
 from callbacksweb.db import insert, read_callbacks
 from callbacksweb.config import DevConfig, ProdConfig
