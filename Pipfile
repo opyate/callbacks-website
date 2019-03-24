@@ -12,8 +12,6 @@ aiohttp-jinja2 = "*"
 faker = "*"
 psycopg2-binary = "*"
 aiohttp-security = "*"
-authlib = "*"
-aiohttp-session = "*"
 
 [requires]
 python_version = "3.7"
