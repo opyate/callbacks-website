@@ -49,5 +49,17 @@ def read_user(config, user_id) -> List[Callback]:
                 [user_id]
             )
 
-            return User(cur.fetchone())
+            row = cur.fetchone()
+            if row:
+                return User(row)
 
+def insert_user(config, user_id, api_key):
+    url = config.DATABASE_URL
+    with psycopg2.connect(url) as cnn:
+        cnn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with cnn.cursor() as cur:
+            cur.execute(
+                sql.SQL("insert into users (user_id, api_key) values (%s, %s) RETURNING *").format(),
+                [user_id, api_key]
+            )
+            return User(cur.fetchone())

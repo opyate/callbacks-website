@@ -20,6 +20,8 @@ class ProdConfig(Config):
     ENV = 'prod'
     DEBUG = False
     DATABASE_URL = "postgresql://doadmin:r9iusuq6n6b0ivzp@db-postgresql-lon1-80165-do-user-3001284-0.db.ondigitalocean.com:25060/callbacks?sslmode=require"
+    AUTH0_DOMAIN = 'uys.eu.auth0.com'
+    API_ID = 'hlUcMrnrm4F9v6vxFWwattExnxj7XJvY'
 
 
 class DevConfig(Config):
@@ -27,6 +29,8 @@ class DevConfig(Config):
     ENV = 'dev'
     DEBUG = True
     DATABASE_URL = "postgres://juanuys@localhost:5432/callbacks"
+    AUTH0_DOMAIN = 'uys.eu.auth0.com'
+    API_ID = 'hlUcMrnrm4F9v6vxFWwattExnxj7XJvY'
 
 class TestConfig(Config):
     ENV = 'test'

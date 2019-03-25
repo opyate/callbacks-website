@@ -1,12 +1,12 @@
 import logging
 from aiohttp import web
-from callbacksweb.db import read_user
+from callbacksweb.db import read_user, insert_user
 from callbacksweb.config import DevConfig, ProdConfig
 import os
-import base64
 import sys, traceback
-import jsonpickle
-import json
+import string
+import random
+from callbacksweb.handlers.util import js
 
 
 config = DevConfig
@@ -23,18 +23,20 @@ async def handle(request):
 
     try:
         apikey = None
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            access_token = auth_header.replace('Bearer ', '')
-            print('got access token', access_token)
 
         if request.method == 'GET':
-            # TODO get username from JWT
-            user = read_user(config, 'demouser')
+            user = read_user(config, request['uid'])
 
-            data = json.loads(jsonpickle.encode(user))
-            data.pop('py/object')
-            return web.json_response(data)
+            if user:
+                return web.json_response(js(user))
+            else:
+                # create a user with an API key, then return it
+                letters = string.ascii_letters
+                letters += string.digits
+                api_key = ''.join(random.choice(letters) for i in range(42))
+                user = insert_user(config, request['uid'], api_key)
+                return web.json_response(js(user))
+
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)

@@ -14,6 +14,7 @@ psycopg2-binary = "*"
 aiohttp-security = "*"
 jsonpickle = "*"
 aiohttp-cors = "*"
+python-jose = "*"
 
 [requires]
 python_version = "3.7"

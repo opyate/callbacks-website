@@ -1,28 +1,62 @@
-from aiohttp import web
-from aiohttp_session import SimpleCookieStorage, session_middleware
-from aiohttp_security import check_permission, \
-    is_anonymous, remember, forget, \
-    setup as setup_security, SessionIdentityPolicy
-from aiohttp_security.abc import AbstractAuthorizationPolicy
+from jose import jwt
+from aiohttp.web import middleware
+import aiohttp
+from callbacksweb.config import DevConfig, ProdConfig
+import os
 
 
-# Demo authorization policy for only one user.
-# User 'jack' has only 'listen' permission.
-# For more complicated authorization policies see examples
-# in the 'demo' directory.
-class SimpleJack_AuthorizationPolicy(AbstractAuthorizationPolicy):
-    async def authorized_userid(self, identity):
-        """Retrieve authorized user id.
-        Return the user_id of the user identified by the identity
-        or 'None' if no user exists related to the identity.
-        """
-        if identity == 'jack':
-            return identity
+config = DevConfig
+if 'DO_PROD' in os.environ:
+    config = ProdConfig
 
-    async def permits(self, identity, permission, context=None):
-        """Check user permissions.
-        Return True if the identity is allowed the permission
-        in the current context, else return False.
-        """
-        return identity == 'jack' and permission in ('listen',)
 
+async def fetch(session, url):
+    async with session.get(url, verify_ssl=False) as response:
+        return await response.json()
+
+@middleware
+async def unpack_jwt(request, handler):
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        all_tokens = auth_header.replace('Bearer ', '')
+
+        id_token, access_token = all_tokens.split('::')
+        print('got token', id_token)
+        uid = await get_user_id(id_token, access_token)
+        print('uid', uid)
+        request['uid'] = uid
+
+    resp = await handler(request)
+    return resp
+
+
+async def get_user_id(token, access_token):
+    async with aiohttp.ClientSession() as session:
+        url = "https://{}/.well-known/jwks.json".format(config.AUTH0_DOMAIN)
+        jwks = await fetch(session, url)
+
+        unverified_header = jwt.get_unverified_header(token)
+
+        rsa_key = {}
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
+        if rsa_key:
+
+            payload = jwt.decode(
+                token,
+                rsa_key,
+                algorithms=unverified_header["alg"],
+                audience=config.API_ID,
+                issuer='https://{}/'.format(config.AUTH0_DOMAIN),
+                access_token=access_token
+            )
+
+            return payload['sub']
+    return None
