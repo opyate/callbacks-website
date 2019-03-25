@@ -1,6 +1,6 @@
 import logging
 from aiohttp import web
-from callbacksweb.db import insert, read_callbacks
+from callbacksweb.db import insert_callback, read_callbacks
 from callbacksweb.config import DevConfig, ProdConfig
 import os
 import base64
@@ -48,13 +48,11 @@ async def handle(request):
             print('submitted', url, ts)
             # TODO real username here
             # TODO apikey should now be in users table (do that on signup)
-            new_row = insert(config, url, ts, 'demouser')
+            new_row = insert_callback(config, url, ts, 'demouser')
 
             data = json.loads(jsonpickle.encode(new_row))
             data.pop('py/object')
-            return web.json_response({
-                'data': data
-            })
+            return web.json_response(data)
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
         return web.Response(text='Something went wrong :(', status=500)

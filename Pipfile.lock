@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "9521bef489183cb86730045889a6299afd778d23dc6daceece0467b67333282f"
+            "sha256": "2ed95a44fe3a979622e0dd3ad1a692b9378e6d925692d9841ff4564bfa32e14c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -43,6 +43,14 @@
             ],
             "index": "pypi",
             "version": "==3.5.4"
+        },
+        "aiohttp-cors": {
+            "hashes": [
+                "sha256:0451ba59fdf6909d0e2cd21e4c0a43752bc0703d33fc78ae94d9d9321710193e",
+                "sha256:4d39c6d7100fd9764ed1caf8cebf0eb01bf5e3f24e2e073fda6234bc48b19f5d"
+            ],
+            "index": "pypi",
+            "version": "==0.7.0"
         },
         "aiohttp-jinja2": {
             "hashes": [

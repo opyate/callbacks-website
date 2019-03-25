@@ -1,5 +1,3 @@
-
-
 class Callback(object):
 
     def __init__(self, row) -> None:

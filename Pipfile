@@ -13,6 +13,7 @@ faker = "*"
 psycopg2-binary = "*"
 aiohttp-security = "*"
 jsonpickle = "*"
+aiohttp-cors = "*"
 
 [requires]
 python_version = "3.7"
