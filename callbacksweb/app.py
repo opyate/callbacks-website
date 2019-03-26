@@ -4,13 +4,13 @@ import aiohttp_jinja2
 from aiohttp import web
 from callbacksweb.handlers import callbacks, home, users
 import aiohttp_cors
-from callbacksweb.auth import unpack_jwt
+from callbacksweb.auth import unpack_jwt, unpack_api_key
 
 
 # from https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning
 async def init_app():
 
-    app = web.Application(middlewares=[unpack_jwt])
+    app = web.Application(middlewares=[unpack_jwt, unpack_api_key])
 
     cors = aiohttp_cors.setup(
         app,
@@ -33,6 +33,7 @@ async def init_app():
     app.router.add_get('/', home.handle)
 
     cors.add(app.router.add_get('/callbacks', callbacks.handle))
+    cors.add(app.router.add_get('/callbacks/{id}', callbacks.handle))
     cors.add(app.router.add_post('/callbacks', callbacks.handle))
     cors.add(app.router.add_get('/users', users.handle))
 

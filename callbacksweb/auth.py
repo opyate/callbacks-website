@@ -3,6 +3,8 @@ from aiohttp.web import middleware
 import aiohttp
 from callbacksweb.config import DevConfig, ProdConfig
 import os
+import base64
+from callbacksweb.db import read_user_by_api_key
 
 
 config = DevConfig
@@ -18,13 +20,14 @@ async def fetch(session, url):
 async def unpack_jwt(request, handler):
     if 'Authorization' in request.headers:
         auth_header = request.headers['Authorization']
-        all_tokens = auth_header.replace('Bearer ', '')
+        if 'Bearer' in auth_header:
+            all_tokens = auth_header.replace('Bearer ', '')
 
-        id_token, access_token = all_tokens.split('::')
-        print('got token', id_token)
-        uid = await get_user_id(id_token, access_token)
-        print('uid', uid)
-        request['uid'] = uid
+            id_token, access_token = all_tokens.split('::')
+            print('got token', id_token)
+            uid = await get_user_id(id_token, access_token)
+            print('uid', uid)
+            request['uid'] = uid
 
     resp = await handler(request)
     return resp
@@ -60,3 +63,18 @@ async def get_user_id(token, access_token):
 
             return payload['sub']
     return None
+
+
+@middleware
+async def unpack_api_key(request, handler):
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        if 'Basic' in auth_header:
+            basic_encoded = auth_header.replace('Basic ', '')
+            api_key = base64.b64decode(basic_encoded).decode('utf-8').replace(':', '')
+
+            user = read_user_by_api_key(config, api_key)
+            request['uid'] = user.user_id
+
+    resp = await handler(request)
+    return resp

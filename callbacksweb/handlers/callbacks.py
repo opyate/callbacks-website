@@ -1,12 +1,15 @@
 import logging
 from aiohttp import web
-from callbacksweb.db import insert_callback, read_callbacks
+from callbacksweb.db import insert_callback, read_callbacks, read_callback, count_callbacks
 from callbacksweb.config import DevConfig, ProdConfig
 import os
 import base64
 import sys, traceback
 import jsonpickle
 import json
+import uuid
+from callbacksweb.handlers.util import js
+import psycopg2
 
 
 config = DevConfig
@@ -17,17 +20,19 @@ if 'DO_PROD' in os.environ:
 log = logging.getLogger(__name__)
 
 
+def safe_callback(callback):
+    ret = js(callback)
+    ret.pop('user_id')
+    ret.pop('shard')
+    return ret
+
+
 async def handle(request):
     # non-auth user is not allowed to do anything
     # demo user is allowed to use cbapi.uys.io/test as a url
     # anyone else can use anything else
 
     try:
-        apikey = None
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            auth_header = auth_header.replace('Basic ', '')
-            apikey = base64.b64decode(auth_header).decode('utf-8').split(':')[0]
 
         if request.method == 'POST':
             if request.content_type == 'application/json':
@@ -36,33 +41,66 @@ async def handle(request):
                 data = await request.post()
             url = data['url']
 
-            # demo user is only allowed to use cb.uys.io as callback target
-            if 'DO_PROD' in os.environ and apikey == 'demo' and 'cb.uys.io/test' not in url:
-                return web.Response(text='demo user only allowed cb.uys.io/test', status=400)
-
             ts = int(data['ts'])
 
             # convert to seconds
             if ts > 9999999999:
                 ts = ts // 1000
-            print('submitted', url, ts)
-            # TODO real username here
-            # TODO apikey should now be in users table (do that on signup)
-            new_row = insert_callback(config, url, ts, 'demouser')
+            callback = insert_callback(config, url, ts, request['uid'])
 
-            data = json.loads(jsonpickle.encode(new_row))
-            data.pop('py/object')
-            return web.json_response(data)
+            return web.json_response(safe_callback(callback))
+
+        if request.method == 'GET':
+            if 'id' in request.match_info:
+                callback_id = request.match_info['id']
+                callback = read_callback(config, request['uid'], callback_id)
+
+                return web.json_response(safe_callback(callback))
+            else:
+                limit = 100
+                if 'limit' in request.query:
+                    limit = int(request.query['limit'])
+                offset = 0
+                if 'offset' in request.query:
+                    offset = int(request.query['offset'])
+                callbacks = read_callbacks(config, request['uid'], limit, offset)
+                count = count_callbacks(config, request['uid'])
+                ret = [safe_callback(callback) for callback in callbacks]
+                return_value = {
+                    'results': ret,
+                    'offset': offset,
+                    'limit': limit,
+                    'count': count,
+                    "_links": {
+                        "current": {
+                            "href": "/callbacks?limit={}&offset={}".format(limit, offset)
+                        },
+                        "self": {
+                            "href": "/callbacks"
+                        }
+                    }
+                }
+
+                if count > limit:
+                    return_value['_links']['next'] = {"href": "/callbacks?limit={}&offset={}".format(limit, offset + limit)}
+                if offset > 0:
+                    return_value['_links']['prev'] = {"href": "/callbacks?limit={}&offset={}".format(limit, offset - limit)}
+
+                return web.json_response(return_value)
+
+    except KeyError:
+        return web.json_response({
+            'message': 'API key required'
+        }, status=401)
+    except psycopg2.DataError:
+        return web.json_response({
+            'message': 'Could not find that resource'
+        }, status=404)
     except Exception as e:
+        correlation_id = str(uuid.uuid4())
+        print(correlation_id)
         traceback.print_exc(file=sys.stdout)
-        return web.Response(text='Something went wrong :(', status=500)
-
-
-async def list(request):
-    # TODO real user from auth
-    callbacks = read_callbacks(config, 'demouser')
-    print('found %i callbacks' % len(callbacks))
-    # [print(callback) for callback in callbacks]
-    return web.json_response({
-        'data': callbacks
-    })
+        return web.json_response({
+            'message': 'Something went wrong :(',
+            'correlation_id': correlation_id
+        }, status=500)

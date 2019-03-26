@@ -19,15 +19,15 @@ def insert_callback(config, callback_url, ts, user_id ='demouser'):
             return Callback(cur.fetchone())
 
 
-def read_callbacks(config, user_id) -> List[Callback]:
+def read_callbacks(config, user_id, limit = 100, offset = 0) -> List[Callback]:
     callbacks = []
     url = config.DATABASE_URL
     with psycopg2.connect(url) as cnn:
         cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
         with cnn.cursor() as cur:
             cur.execute(
-                sql.SQL("select * from callbacks where user_id = %s").format(),
-                [user_id]
+                sql.SQL("select * from callbacks where user_id = %s order by id limit %s offset %s").format(),
+                [user_id, limit, offset]
             )
 
             row = cur.fetchone()
@@ -38,8 +38,35 @@ def read_callbacks(config, user_id) -> List[Callback]:
     return callbacks
 
 
+def read_callback(config, user_id, callback_id) -> List[Callback]:
+    url = config.DATABASE_URL
+    with psycopg2.connect(url) as cnn:
+        cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
+        with cnn.cursor() as cur:
+            cur.execute(
+                sql.SQL("select * from callbacks where user_id = %s and id = %s").format(),
+                [user_id, callback_id]
+            )
+
+            row = cur.fetchone()
+            return Callback(row)
+
+
+def count_callbacks(config, user_id) -> int:
+    url = config.DATABASE_URL
+    with psycopg2.connect(url) as cnn:
+        cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
+        with cnn.cursor() as cur:
+            cur.execute(
+                sql.SQL("select count(id) from callbacks where user_id = %s").format(),
+                [user_id]
+            )
+
+            row = cur.fetchone()
+            return row[0]
+
+
 def read_user(config, user_id) -> List[Callback]:
-    callbacks = []
     url = config.DATABASE_URL
     with psycopg2.connect(url) as cnn:
         cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
@@ -52,6 +79,22 @@ def read_user(config, user_id) -> List[Callback]:
             row = cur.fetchone()
             if row:
                 return User(row)
+
+
+def read_user_by_api_key(config, api_key) -> List[Callback]:
+    url = config.DATABASE_URL
+    with psycopg2.connect(url) as cnn:
+        cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
+        with cnn.cursor() as cur:
+            cur.execute(
+                sql.SQL("select * from users where api_key = %s").format(),
+                [api_key]
+            )
+
+            row = cur.fetchone()
+            if row:
+                return User(row)
+
 
 def insert_user(config, user_id, api_key):
     url = config.DATABASE_URL

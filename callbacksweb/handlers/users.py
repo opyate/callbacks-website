@@ -7,6 +7,7 @@ import sys, traceback
 import string
 import random
 from callbacksweb.handlers.util import js
+import uuid
 
 
 config = DevConfig
@@ -17,13 +18,7 @@ log = logging.getLogger(__name__)
 
 
 async def handle(request):
-    # non-auth user is not allowed to do anything
-    # demo user is allowed to use cbapi.uys.io/test as a url
-    # anyone else can use anything else
-
     try:
-        apikey = None
-
         if request.method == 'GET':
             user = read_user(config, request['uid'])
 
@@ -38,5 +33,10 @@ async def handle(request):
                 return web.json_response(js(user))
 
     except Exception as e:
+        correlation_id = str(uuid.uuid4())
+        print(correlation_id)
         traceback.print_exc(file=sys.stdout)
-        return web.Response(text='Something went wrong :(', status=500)
+        return web.json_response({
+            'message': 'Something went wrong :(',
+            'correlation_id': correlation_id
+        }, status=500)
