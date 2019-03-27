@@ -66,6 +66,19 @@ def count_callbacks(config, user_id) -> int:
             return row[0]
 
 
+def delete_callback(config, user_id, callback_id) -> int:
+    url = config.DATABASE_URL
+    with psycopg2.connect(url) as cnn:
+        cnn.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
+        with cnn.cursor() as cur:
+            cur.execute(
+                sql.SQL("delete from callbacks where user_id = %s and id = %s RETURNING *").format(),
+                [user_id, callback_id]
+            )
+
+            return cur.rowcount
+
+
 def read_user(config, user_id) -> List[Callback]:
     url = config.DATABASE_URL
     with psycopg2.connect(url) as cnn:

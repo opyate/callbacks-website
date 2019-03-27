@@ -32,8 +32,9 @@ async def init_app():
 
     app.router.add_get('/', home.handle)
 
-    cors.add(app.router.add_get('/callbacks', callbacks.handle))
     cors.add(app.router.add_get('/callbacks/{id}', callbacks.handle))
+    cors.add(app.router.add_delete('/callbacks/{id}', callbacks.handle))
+    cors.add(app.router.add_get('/callbacks', callbacks.handle))
     cors.add(app.router.add_post('/callbacks', callbacks.handle))
     cors.add(app.router.add_get('/users', users.handle))
 

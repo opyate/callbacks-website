@@ -1,6 +1,6 @@
 import logging
 from aiohttp import web
-from callbacksweb.db import insert_callback, read_callbacks, read_callback, count_callbacks
+from callbacksweb.db import insert_callback, read_callbacks, read_callback, count_callbacks, delete_callback
 from callbacksweb.config import DevConfig, ProdConfig
 import os
 import base64
@@ -33,6 +33,14 @@ async def handle(request):
     # anyone else can use anything else
 
     try:
+
+        if request.method == 'DELETE':
+            callback_id = request.match_info['id']
+            count = delete_callback(config, request['uid'], callback_id)
+
+            return web.json_response({
+                'message': 'Deleted {} row(s).'.format(count)
+            })
 
         if request.method == 'POST':
             if request.content_type == 'application/json':
